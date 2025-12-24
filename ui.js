@@ -655,9 +655,16 @@ const ui = {
     },
 
     renderBouquetZone() {
+        // Keep the canvas, remove everything else
+        const canvas = this.wrapCanvas;
         this.bouquetZone.innerHTML = '';
+        this.bouquetZone.appendChild(canvas);
+
         if (game.currentBouquet.length === 0) {
-            this.bouquetZone.innerHTML = '<p class="placeholder">Нажмите на цветы из запасов слева, чтобы добавить их в букет</p>';
+            const placeholder = document.createElement('p');
+            placeholder.className = 'placeholder';
+            placeholder.textContent = 'Нажмите на цветы из запасов слева, чтобы добавить их в букет';
+            this.bouquetZone.appendChild(placeholder);
             this.btnRemove.classList.add('hidden');
             this.layerControls.classList.add('hidden');
             // Clear positions and z-indexes for removed flowers
