@@ -141,7 +141,9 @@ const ui = {
         if (!this.isDragging) return;
 
         if (this.draggedElement) {
-            this.draggedElement.style.zIndex = '';
+            // Restore the saved z-index for this flower
+            const savedZIndex = this.getFlowerZIndex(this.draggedInstanceId);
+            this.draggedElement.style.zIndex = savedZIndex;
             this.draggedElement.style.cursor = 'grab';
         }
 
