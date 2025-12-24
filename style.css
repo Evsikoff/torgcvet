@@ -1,0 +1,482 @@
+:root {
+    --primary-color: #d88995;
+    /* Dusty Rose */
+    --secondary-color: #9baa8e;
+    /* Sage Green */
+    --bg-color: #fcf9f2;
+    /* Cream */
+    --text-color: #4a4a4a;
+    --dark-overlay: rgba(0, 0, 0, 0.8);
+    --font-heading: 'Playfair Display', serif;
+    --font-body: 'Roboto', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-body);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#game-container {
+    display: flex;
+    flex-direction: column;
+    /* Aspect Ratio logic */
+    aspect-ratio: 16 / 9;
+    width: 100vw;
+    max-width: 160vh;
+    /* Ensures width doesn't exceed 16/9 of whatever height is available */
+    max-height: 100vh;
+    margin: auto;
+    /* Center in viewport */
+    background: #fff;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+header {
+    background: var(--primary-color);
+    color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h1 {
+    font-family: var(--font-heading);
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+.stats-box span {
+    margin-right: 20px;
+    font-weight: 500;
+    font-size: 1.2rem;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+.shop-layout {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+/* Inventory Section */
+.inventory-section {
+    width: 40%;
+    border-right: 1px solid #eee;
+    padding: 1rem;
+    background: #fdfdfd;
+    overflow-y: auto;
+}
+
+.flower-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+}
+
+.flower-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    transition: transform 0.1s;
+    text-align: center;
+    position: relative;
+    /* For badge positioning */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.count-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: var(--secondary-color);
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+}
+
+.flower-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--primary-color);
+}
+
+.flower-card.wilted {
+    background: #fff0f0;
+    border-color: red;
+    opacity: 0.7;
+}
+
+.flower-icon {
+    font-size: 2rem;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.flower-info h4 {
+    margin: 5px 0;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.flower-freshness {
+    font-size: 0.8rem;
+    color: #666;
+    display: block;
+}
+
+/* Work Section */
+.work-section {
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    position: relative;
+}
+
+.customer-card {
+    background: #fff8e1;
+    border: 1px solid #ffe0b2;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.customer-avatar {
+    font-size: 3rem;
+    background: #fff;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #ffe0b2;
+}
+
+.customer-bubble p {
+    margin: 0 0 5px 0;
+    font-style: italic;
+    font-size: 1.1rem;
+    font-family: var(--font-heading);
+}
+
+.req-tags {
+    font-size: 0.8rem;
+    color: #777;
+}
+
+.worktable-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #f0f4f0;
+    border-radius: 12px;
+    padding: 15px;
+    border: 2px dashed #ccd;
+}
+
+.bouquet-dropzone {
+    flex: 1;
+    background: white;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    /* display: flex; REMOVE flex to allow absolute items */
+    /* flex-wrap: wrap; */
+    /* align-content: flex-start; */
+    gap: 10px;
+    min-height: 200px;
+    position: relative;
+    /* For absolute children */
+    overflow: hidden;
+    /* Keep flowers inside */
+}
+
+.bouquet-dropzone .flower-card {
+    width: 80px;
+    font-size: 0.8rem;
+}
+
+.bouquet-dropzone .placeholder {
+    width: 100%;
+    text-align: center;
+    color: #aaa;
+    margin-top: 50px;
+}
+
+.live-stats {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 10px;
+    text-align: right;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-primary:hover {
+    background: #c77884;
+}
+
+.btn-secondary {
+    background: #ccc;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Modals */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--dark-overlay);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-content.large-modal {
+    max-width: 900px;
+    width: 90%;
+}
+
+.modal-content.large {
+    max-width: 900px;
+}
+
+.modal-content h2 {
+    font-family: var(--font-heading);
+    margin-top: 0;
+}
+
+.modal-content .flower-grid {
+    overflow-y: auto;
+    max-height: 400px;
+    margin: 20px 0;
+    padding: 5px;
+}
+
+.buy-card {
+    text-align: left;
+    border: 1px solid #eee;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.buy-card button {
+    width: 100%;
+    margin-top: 5px;
+    background: var(--secondary-color);
+    color: white;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+}
+
+/* Flower Images */
+.flower-icon-img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    display: block;
+}
+
+/* FIXED Bouquet Item Style */
+.bouquet-item-img {
+    height: 30%;
+    width: auto;
+    object-fit: contain;
+    cursor: pointer;
+    filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.2));
+    transition: transform 0.2s;
+    /* box-shadow transition removed, only transform */
+    position: absolute;
+    /* initial top/left set by JS */
+}
+
+.bouquet-item-img:hover {
+    transform: scale(1.05);
+}
+
+.bouquet-item-img.selected {
+    filter: drop-shadow(0 0 10px gold) !important;
+    transform: scale(1.1);
+    z-index: 10;
+}
+
+/* Visual Bouquet Composition */
+.bouquet-visual-container {
+    width: 100%;
+    height: 250px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    margin-bottom: 1rem;
+}
+
+.bouquet-flower-img {
+    position: absolute;
+    bottom: 10px;
+    max-height: 220px;
+    width: auto;
+    filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.2));
+    transform-origin: bottom center;
+    transition: transform 0.3s ease;
+}
+
+/* Result Modal Layout */
+.result-layout {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 20px;
+    flex: 1;
+    overflow: hidden;
+}
+
+.result-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    overflow-y: auto;
+}
+
+.result-col.center {
+    flex: 1.5;
+    background: white;
+    border: 1px solid #eee;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.stat-list {
+    text-align: left;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px dashed #eee;
+}
+
+.stat-item.success {
+    color: green;
+}
+
+.stat-item.fail {
+    color: red;
+}
+
+.result-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+}
+
+/* Mobile Warning */
+#rotate-device-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #2c3e50;
+    color: white;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+@media screen and (orientation: portrait) and (max-width: 900px) {
+    #rotate-device-overlay {
+        display: flex !important;
+    }
+
+    #game-container {
+        display: none !important;
+    }
+}

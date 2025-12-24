@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Игра: Цветочный Магазин</title>
+    <link rel="stylesheet" href="style.css?v=6">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Roboto:wght@300;400;500&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div id="rotate-device-overlay" class="hidden">
+        <div class="rotate-content">
+            <span style="font-size: 4rem;">📱➡️🔄</span>
+            <h2>Пожалуйста, поверните устройство</h2>
+            <p>Игра оптимизирована для горизонтальной ориентации</p>
+        </div>
+    </div>
+    <div id="game-container">
+        <!-- Header -->
+        <header>
+            <div class="stats-box">
+                <span>День: <span id="day-display">1</span></span>
+                <span>Касса: <span id="money-display">100</span> ₽</span>
+            </div>
+            <h1>Цветочная Лавка</h1>
+        </header>
+
+        <!-- Main View (Day) -->
+        <main id="day-view">
+            <div class="shop-layout">
+                <!-- Left: Inventory Shelves -->
+                <div class="inventory-section">
+                    <h2>Наши Цветы</h2>
+                    <div id="inventory-grid" class="flower-grid">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+
+                <!-- Center: Customer & Worktable -->
+                <div class="work-section">
+                    <div id="customer-area" class="customer-card hidden">
+                        <div class="customer-avatar">👤</div>
+                        <div class="customer-bubble">
+                            <p id="customer-req">Текст запроса...</p>
+                            <div class="req-tags" id="req-tags">
+                                <!-- filled by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="worktable-container">
+                        <h2>Рабочий Стол (Букет)</h2>
+
+                        <div id="bouquet-zone" class="bouquet-dropzone">
+                            <p class="placeholder">Нажмите на цветы из запасов слева, чтобы добавить их в букет</p>
+                            <!-- Selected flowers go here -->
+                        </div>
+                        <div id="bouquet-stats" class="live-stats">
+                            <!-- Live calc stats -->
+                        </div>
+                        <div class="actions">
+                            <button id="btn-remove" class="btn-secondary hidden"
+                                style="margin-right: auto;">Убрать</button>
+                            <button id="btn-sell" class="btn-primary">Предложить Букет</button>
+                            <button id="btn-clear" class="btn-secondary">Очистить</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Result Modal (Redesigned) -->
+        <div id="result-modal" class="modal hidden">
+            <div class="modal-content large-modal">
+                <h2 id="result-title">Результат</h2>
+                <div class="result-layout">
+                    <!-- Column 1: Expectations -->
+                    <div class="result-col left">
+                        <h3>Ожидание</h3>
+                        <div id="expect-list" class="stat-list"></div>
+                    </div>
+
+                    <!-- Column 2: Visual (Placeholder for now) -->
+                    <div class="result-col center">
+                        <div class="bouquet-visual-placeholder">
+                            <span style="font-size: 5rem;">💐</span>
+                            <p>Ваш букет</p>
+                        </div>
+                    </div>
+
+                    <!-- Column 3: Actual Stats -->
+                    <div class="result-col right">
+                        <h3>Реальность</h3>
+                        <div id="actual-list" class="stat-list"></div>
+                    </div>
+                </div>
+                <button id="btn-close-result" class="btn-primary">Закрыть</button>
+            </div>
+        </div>
+
+        <!-- Evening: Spoilage View -->
+        <div id="spoilage-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2>Вечер: Ревизия</h2>
+                <p>Выбросьте завядшие цветы (Свежесть <= 0)</p>
+                        <div id="spoilage-grid" class="flower-grid"></div>
+                        <button id="btn-finish-spoilage" class="btn-primary">Закончить ревизию</button>
+            </div>
+        </div>
+
+        <!-- Evening: Shop View -->
+        <div id="shop-modal" class="modal hidden">
+            <div class="modal-content large">
+                <h2>Оптовая База</h2>
+                <p>Закупите свежие цветы на завтра</p>
+                <div id="wholesale-grid" class="flower-grid"></div>
+                <button id="btn-finish-shopping" class="btn-primary">Открыть магазин (Новый день)</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="ui.js?v=10"></script>
+</body>
+
+</html>
