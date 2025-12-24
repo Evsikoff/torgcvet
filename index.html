@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Игра: Цветочный Магазин</title>
-    <link rel="stylesheet" href="style.css?v=9">
+    <link rel="stylesheet" href="style.css?v=10">
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Roboto:wght@300;400;500&display=swap"
         rel="stylesheet">
@@ -56,6 +56,7 @@
                         <h2>Рабочий Стол (Букет)</h2>
 
                         <div id="bouquet-zone" class="bouquet-dropzone">
+                            <canvas id="wrap-canvas"></canvas>
                             <p class="placeholder">Нажмите на цветы из запасов слева, чтобы добавить их в букет</p>
                             <!-- Selected flowers go here -->
                         </div>
@@ -70,6 +71,7 @@
                                 <button id="btn-layer-bottom" class="btn-layer" title="На задний план">⤓</button>
                             </div>
                             <button id="btn-remove" class="btn-secondary hidden">Убрать</button>
+                            <button id="btn-wrap" class="btn-secondary" disabled>Упаковать</button>
                             <button id="btn-sell" class="btn-primary">Предложить Букет</button>
                             <button id="btn-clear" class="btn-secondary">Очистить</button>
                         </div>
@@ -107,6 +109,24 @@
             </div>
         </div>
 
+        <!-- Wrap Color Modal -->
+        <div id="wrap-modal" class="modal hidden">
+            <div class="modal-content small-modal">
+                <h2>Выберите цвет упаковки</h2>
+                <div id="color-options" class="color-options">
+                    <button class="color-btn" data-color="#FFB6C1" style="background: #FFB6C1;" title="Розовый"></button>
+                    <button class="color-btn" data-color="#FF6B6B" style="background: #FF6B6B;" title="Красный"></button>
+                    <button class="color-btn" data-color="#FFD93D" style="background: #FFD93D;" title="Жёлтый"></button>
+                    <button class="color-btn" data-color="#6BCB77" style="background: #6BCB77;" title="Зелёный"></button>
+                    <button class="color-btn" data-color="#4D96FF" style="background: #4D96FF;" title="Синий"></button>
+                    <button class="color-btn" data-color="#9B59B6" style="background: #9B59B6;" title="Фиолетовый"></button>
+                    <button class="color-btn" data-color="#F5F5DC" style="background: #F5F5DC;" title="Бежевый"></button>
+                    <button class="color-btn" data-color="#FFFFFF" style="background: #FFFFFF; border: 1px solid #ccc;" title="Белый"></button>
+                </div>
+                <button id="btn-cancel-wrap" class="btn-secondary">Отмена</button>
+            </div>
+        </div>
+
         <!-- Evening: Spoilage View -->
         <div id="spoilage-modal" class="modal hidden">
             <div class="modal-content">
@@ -128,7 +148,7 @@
         </div>
     </div>
 
-    <script type="module" src="ui.js?v=19"></script>
+    <script type="module" src="ui.js?v=20"></script>
 </body>
 
 </html>

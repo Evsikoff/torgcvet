@@ -228,6 +228,16 @@ main {
     /* Keep flowers inside */
 }
 
+#wrap-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+}
+
 .bouquet-dropzone .flower-card {
     width: 80px;
     font-size: 0.8rem;
@@ -340,6 +350,32 @@ main {
 .modal-content.large-modal {
     max-width: 900px;
     width: 90%;
+}
+
+.modal-content.small-modal {
+    max-width: 400px;
+}
+
+.color-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.color-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.color-btn:hover {
+    transform: scale(1.1);
+    border-color: var(--primary-color);
 }
 
 .modal-content.large {

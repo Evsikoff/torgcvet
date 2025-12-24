@@ -38,6 +38,14 @@ const ui = {
     btnLayerTop: document.getElementById('btn-layer-top'),
     btnLayerBottom: document.getElementById('btn-layer-bottom'),
 
+    // Wrap elements
+    btnWrap: document.getElementById('btn-wrap'),
+    wrapModal: document.getElementById('wrap-modal'),
+    wrapCanvas: document.getElementById('wrap-canvas'),
+    colorOptions: document.getElementById('color-options'),
+    btnCancelWrap: document.getElementById('btn-cancel-wrap'),
+    isWrapped: false,
+
     // Result Modal Selectors
     resultModal: document.getElementById('result-modal'),
     resultTitle: document.getElementById('result-title'),
@@ -137,6 +145,12 @@ const ui = {
 
         // Save position
         this.flowerPositions[this.draggedInstanceId] = { x: newX, y: newY };
+
+        // Clear wrap if bouquet was wrapped (moving flowers unwraps)
+        if (this.isWrapped) {
+            this.isWrapped = false;
+            this.clearWrapCanvas();
+        }
 
         // Update sell button state based on bouquet assembly
         this.updateSellButtonState();
@@ -254,6 +268,143 @@ const ui = {
         } else {
             this.btnSell.disabled = true;
         }
+
+        // Update wrap button state
+        this.btnWrap.disabled = !(hasFlowers && isAssembled && !this.isWrapped);
+    },
+
+    clearWrapCanvas() {
+        const canvas = this.wrapCanvas;
+        const ctx = canvas.getContext('2d');
+        canvas.width = this.bouquetZone.offsetWidth;
+        canvas.height = this.bouquetZone.offsetHeight;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    },
+
+    getBudBottomPoints() {
+        const flowerImgs = this.bouquetZone.querySelectorAll('.bouquet-item-img');
+        const points = [];
+
+        flowerImgs.forEach(img => {
+            const width = img.offsetWidth;
+            const height = img.offsetHeight;
+            const left = parseFloat(img.style.left) || 0;
+            const top = parseFloat(img.style.top) || 0;
+            const zIndex = parseInt(img.style.zIndex) || 0;
+
+            // Bud is the upper quarter of the flower
+            const budHeight = height / 4;
+            const budBottom = top + budHeight;
+            const budCenterX = left + width / 2;
+
+            points.push({
+                x: budCenterX,
+                y: budBottom,
+                zIndex: zIndex,
+                left: left,
+                right: left + width,
+                top: top,
+                budBottom: budBottom
+            });
+        });
+
+        return points;
+    },
+
+    isPointVisible(point, allPoints) {
+        // Check if point is covered by another flower with higher z-index
+        for (const other of allPoints) {
+            if (other.zIndex > point.zIndex) {
+                // Check if point is within the bounding box of the other flower's bud area
+                if (point.x >= other.left && point.x <= other.right &&
+                    point.y >= other.top && point.y <= other.budBottom) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    },
+
+    wrapBouquet(color) {
+        this.isWrapped = true;
+        this.updateSellButtonState();
+
+        const canvas = this.wrapCanvas;
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas size
+        canvas.width = this.bouquetZone.offsetWidth;
+        canvas.height = this.bouquetZone.offsetHeight;
+
+        // Get all bud bottom points
+        const allPoints = this.getBudBottomPoints();
+
+        // Filter out hidden points
+        const visiblePoints = allPoints.filter(p => this.isPointVisible(p, allPoints));
+
+        if (visiblePoints.length === 0) return;
+
+        // Sort points by x coordinate for proper line drawing
+        visiblePoints.sort((a, b) => a.x - b.x);
+
+        // Find the bottom point of the bouquet (lowest point of all flowers)
+        const flowerImgs = this.bouquetZone.querySelectorAll('.bouquet-item-img');
+        let maxBottom = 0;
+        let bottomCenterX = canvas.width / 2;
+
+        flowerImgs.forEach(img => {
+            const height = img.offsetHeight;
+            const top = parseFloat(img.style.top) || 0;
+            const left = parseFloat(img.style.left) || 0;
+            const width = img.offsetWidth;
+            const bottom = top + height;
+
+            if (bottom > maxBottom) {
+                maxBottom = bottom;
+                bottomCenterX = left + width / 2;
+            }
+        });
+
+        // Calculate average bottom center x
+        let sumX = 0;
+        flowerImgs.forEach(img => {
+            const left = parseFloat(img.style.left) || 0;
+            const width = img.offsetWidth;
+            sumX += left + width / 2;
+        });
+        bottomCenterX = sumX / flowerImgs.length;
+
+        const bottomPoint = { x: bottomCenterX, y: maxBottom };
+
+        // Get leftmost and rightmost visible points
+        const leftPoint = visiblePoints[0];
+        const rightPoint = visiblePoints[visiblePoints.length - 1];
+
+        // Draw the wrap
+        ctx.beginPath();
+
+        // Start from left bud point
+        ctx.moveTo(leftPoint.x, leftPoint.y);
+
+        // Draw line along the top connecting all visible bud points
+        for (let i = 1; i < visiblePoints.length; i++) {
+            ctx.lineTo(visiblePoints[i].x, visiblePoints[i].y);
+        }
+
+        // Draw line to bottom point from right
+        ctx.lineTo(bottomPoint.x, bottomPoint.y);
+
+        // Close path back to left point
+        ctx.closePath();
+
+        // Fill with semi-transparent color
+        ctx.fillStyle = color + 'AA'; // Add alpha
+        ctx.fill();
+
+        // Draw border
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.stroke();
     },
 
     changeLayerUp(instanceId) {
@@ -272,6 +423,7 @@ const ui = {
             // Swap z-indexes
             this.flowerZIndexes[instanceId] = nextZ;
             this.flowerZIndexes[nextId] = currentZ;
+            this.clearWrapOnLayerChange();
             this.renderBouquetZone();
         }
     },
@@ -292,6 +444,7 @@ const ui = {
             // Swap z-indexes
             this.flowerZIndexes[instanceId] = prevZ;
             this.flowerZIndexes[prevId] = currentZ;
+            this.clearWrapOnLayerChange();
             this.renderBouquetZone();
         }
     },
@@ -304,6 +457,7 @@ const ui = {
             if (z > maxZ) maxZ = z;
         });
         this.flowerZIndexes[instanceId] = maxZ + 1;
+        this.clearWrapOnLayerChange();
         this.renderBouquetZone();
     },
 
@@ -315,7 +469,15 @@ const ui = {
             if (z < minZ) minZ = z;
         });
         this.flowerZIndexes[instanceId] = minZ - 1;
+        this.clearWrapOnLayerChange();
         this.renderBouquetZone();
+    },
+
+    clearWrapOnLayerChange() {
+        if (this.isWrapped) {
+            this.isWrapped = false;
+            this.clearWrapCanvas();
+        }
     },
 
     setupListeners() {
@@ -337,13 +499,35 @@ const ui = {
         this.btnClear.addEventListener('click', () => {
             game.currentBouquet = [];
             this.selectedInstanceId = null;
+            this.isWrapped = false;
+            this.clearWrapCanvas();
             window.dispatchEvent(new CustomEvent('bouquet-updated'));
+        });
+
+        // Wrap button
+        this.btnWrap.addEventListener('click', () => {
+            this.wrapModal.classList.remove('hidden');
+        });
+
+        this.btnCancelWrap.addEventListener('click', () => {
+            this.wrapModal.classList.add('hidden');
+        });
+
+        // Color selection
+        this.colorOptions.querySelectorAll('.color-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const color = btn.dataset.color;
+                this.wrapModal.classList.add('hidden');
+                this.wrapBouquet(color);
+            });
         });
 
         this.btnRemove.addEventListener('click', () => {
             if (this.selectedInstanceId !== null) {
                 game.removeFromBouquet(this.selectedInstanceId);
                 this.selectedInstanceId = null;
+                this.isWrapped = false;
+                this.clearWrapCanvas();
                 // renderBouquetZone is called by event listener
             }
         });
