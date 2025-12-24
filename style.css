@@ -228,6 +228,16 @@ main {
     /* Keep flowers inside */
 }
 
+#wrap-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+}
+
 .bouquet-dropzone .flower-card {
     width: 80px;
     font-size: 0.8rem;
@@ -251,6 +261,32 @@ main {
     display: flex;
     gap: 10px;
     justify-content: flex-end;
+    align-items: center;
+}
+
+.layer-controls {
+    display: flex;
+    gap: 5px;
+    margin-right: auto;
+}
+
+.btn-layer {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: white;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.btn-layer:hover {
+    background: #f0f0f0;
+    border-color: var(--primary-color);
 }
 
 .btn-primary {
@@ -316,6 +352,32 @@ main {
     width: 90%;
 }
 
+.modal-content.small-modal {
+    max-width: 400px;
+}
+
+.color-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.color-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.color-btn:hover {
+    transform: scale(1.1);
+    border-color: var(--primary-color);
+}
+
 .modal-content.large {
     max-width: 900px;
 }
@@ -359,7 +421,7 @@ main {
 
 /* FIXED Bouquet Item Style */
 .bouquet-item-img {
-    height: 30%;
+    height: 60%;
     width: auto;
     object-fit: contain;
     cursor: pointer;
@@ -372,6 +434,11 @@ main {
 
 .bouquet-item-img:hover {
     transform: scale(1.05);
+}
+
+.bouquet-item-img.dragging {
+    cursor: grabbing !important;
+    z-index: 100;
 }
 
 .bouquet-item-img.selected {
