@@ -410,22 +410,25 @@ const ui = {
             y: parseFloat(rightmostImg.style.top) || 0
         };
 
-        // Draw the wrap in a logical V-shape
+        // Draw the wrap shape first
         ctx.beginPath();
         ctx.moveTo(bottomPoint.x, bottomPoint.y);
         ctx.lineTo(extremeLeftPoint.x, extremeLeftPoint.y);
-
-        // Draw line along the top connecting all visible bud points
         visiblePoints.forEach(point => {
             ctx.lineTo(point.x, point.y);
         });
-
         ctx.lineTo(extremeRightPoint.x, extremeRightPoint.y);
-        ctx.closePath(); // This will draw a line back to the bottomPoint
-
-        // Fill with semi-transparent color
-        ctx.fillStyle = color; // Add alpha
+        ctx.closePath();
+        ctx.fillStyle = color;
         ctx.fill();
+
+        // Now, draw the white rectangle BEHIND the existing content
+        ctx.globalCompositeOperation = 'destination-over';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(extremeLeftPoint.x, extremeLeftPoint.y, extremeRightPoint.x - extremeLeftPoint.x, bottomPoint.y - extremeLeftPoint.y);
+
+        // Reset composite operation to default
+        ctx.globalCompositeOperation = 'source-over';
 
         // Draw border
         ctx.strokeStyle = color;
