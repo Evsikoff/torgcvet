@@ -377,24 +377,30 @@ const ui = {
         const bottomPoint = { x: bottomCenterX, y: maxBottom };
 
         // Get leftmost and rightmost visible points
-        const leftPoint = visiblePoints[0];
-        const rightPoint = visiblePoints[visiblePoints.length - 1];
+        const leftmostVisiblePoint = visiblePoints[0];
+        const rightmostVisiblePoint = visiblePoints[visiblePoints.length - 1];
+
+        const extremeLeftPoint = { x: leftmostVisiblePoint.left, y: leftmostVisiblePoint.top };
+        const extremeRightPoint = { x: rightmostVisiblePoint.right, y: rightmostVisiblePoint.top };
 
         // Draw the wrap
         ctx.beginPath();
 
-        // Start from left bud point
-        ctx.moveTo(leftPoint.x, leftPoint.y);
+        // Start from the new extreme left point
+        ctx.moveTo(extremeLeftPoint.x, extremeLeftPoint.y);
 
         // Draw line along the top connecting all visible bud points
-        for (let i = 1; i < visiblePoints.length; i++) {
-            ctx.lineTo(visiblePoints[i].x, visiblePoints[i].y);
-        }
+        visiblePoints.forEach(point => {
+            ctx.lineTo(point.x, point.y);
+        });
 
-        // Draw line to bottom point from right
+        // Continue to the new extreme right point
+        ctx.lineTo(extremeRightPoint.x, extremeRightPoint.y);
+
+        // Draw line to the bottom point of the bouquet
         ctx.lineTo(bottomPoint.x, bottomPoint.y);
 
-        // Close path back to left point
+        // Close path back to the start
         ctx.closePath();
 
         // Fill with semi-transparent color
