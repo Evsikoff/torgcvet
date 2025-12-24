@@ -137,6 +137,9 @@ const ui = {
 
         // Save position
         this.flowerPositions[this.draggedInstanceId] = { x: newX, y: newY };
+
+        // Update sell button state based on bouquet assembly
+        this.updateSellButtonState();
     },
 
     handleDragEnd(e) {
@@ -179,6 +182,78 @@ const ui = {
             this.flowerZIndexes[instanceId] = index >= 0 ? index : 0;
         }
         return this.flowerZIndexes[instanceId];
+    },
+
+    checkBouquetAssembled() {
+        // Need at least 1 flower
+        if (game.currentBouquet.length === 0) {
+            return false;
+        }
+
+        // Single flower is always "assembled"
+        if (game.currentBouquet.length === 1) {
+            return true;
+        }
+
+        // Get all flower images in the bouquet zone
+        const flowerImgs = this.bouquetZone.querySelectorAll('.bouquet-item-img');
+        if (flowerImgs.length < 2) return true;
+
+        // Calculate upper third bounding boxes for all flowers
+        const upperThirds = [];
+        flowerImgs.forEach(img => {
+            const width = img.offsetWidth;
+            const height = img.offsetHeight;
+            const left = parseFloat(img.style.left) || 0;
+            const top = parseFloat(img.style.top) || 0;
+
+            // Upper third of the flower
+            upperThirds.push({
+                left: left,
+                right: left + width,
+                top: top,
+                bottom: top + height / 3
+            });
+        });
+
+        // Check if all upper thirds have a common intersection area
+        // Start with the first upper third as the intersection
+        let intersection = { ...upperThirds[0] };
+
+        for (let i = 1; i < upperThirds.length; i++) {
+            const rect = upperThirds[i];
+
+            // Calculate intersection
+            intersection = {
+                left: Math.max(intersection.left, rect.left),
+                right: Math.min(intersection.right, rect.right),
+                top: Math.max(intersection.top, rect.top),
+                bottom: Math.min(intersection.bottom, rect.bottom)
+            };
+
+            // Check if intersection is valid (has positive area or at least touching)
+            // Allow small tolerance for "touching" (5px)
+            const tolerance = 5;
+            if (intersection.right < intersection.left - tolerance ||
+                intersection.bottom < intersection.top - tolerance) {
+                return false;
+            }
+        }
+
+        return true;
+    },
+
+    updateSellButtonState() {
+        const isAssembled = this.checkBouquetAssembled();
+        const hasFlowers = game.currentBouquet.length > 0;
+
+        if (hasFlowers && isAssembled && game.currentCustomer) {
+            const finalPrice = game.calculateFinalPrice();
+            const budget = game.currentCustomer.budget;
+            this.btnSell.disabled = (finalPrice > budget);
+        } else {
+            this.btnSell.disabled = true;
+        }
     },
 
     changeLayerUp(instanceId) {
@@ -500,6 +575,7 @@ const ui = {
         const finalPrice = game.calculateFinalPrice();
         const budget = game.currentCustomer.budget;
         const stats = game.calculateBouquetStats();
+        const isAssembled = this.checkBouquetAssembled();
 
         this.bouquetStats.innerHTML = `
             Свежесть: ${stats.freshness}<br>
@@ -509,11 +585,11 @@ const ui = {
             <span class="budget-display ${finalPrice > budget ? 'over' : 'ok'}">
                 Цена: ${finalPrice} / ${budget} ₽
             </span>
+            ${!isAssembled ? '<br><span style="color: orange;">⚠ Соберите букет!</span>' : ''}
         `;
 
-        // Disable "Offer" button if over budget? Or let them try and fail?
-        // Prompt says: "Player must not exceed". Let's disable for UX.
-        this.btnSell.disabled = (finalPrice > budget);
+        // Button disabled if over budget OR bouquet not assembled
+        this.updateSellButtonState();
     },
 
     handleOffer() {
