@@ -154,6 +154,7 @@ const ui = {
         window.addEventListener('bouquet-updated', () => {
             this.renderBouquetZone();
             this.updateStatsPreview();
+            this.renderInventory(); // Re-render inventory to update available flowers
         });
         window.addEventListener('inventory-updated', () => {
             this.renderInventory();
