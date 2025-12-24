@@ -157,11 +157,9 @@ const ui = {
     getInitialPosition(index, totalCount) {
         // Distribute flowers in a nice pattern
         const zoneWidth = this.bouquetZone.offsetWidth;
-        const zoneHeight = this.bouquetZone.offsetHeight;
 
-        // Create a semi-circular arrangement at the bottom
+        // Position at top of the zone
         const centerX = zoneWidth / 2;
-        const baseY = zoneHeight * 0.6;
 
         // Spread horizontally based on count
         const spread = Math.min(zoneWidth * 0.7, totalCount * 60);
@@ -169,7 +167,7 @@ const ui = {
         const stepX = totalCount > 1 ? spread / (totalCount - 1) : 0;
 
         const x = totalCount > 1 ? startX + stepX * index : centerX - 40;
-        const y = baseY + Math.abs(index - (totalCount - 1) / 2) * 15;
+        const y = 0; // Top of the zone
 
         return { x: x - 40, y: y };
     },
