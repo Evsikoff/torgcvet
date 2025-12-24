@@ -20,6 +20,7 @@ const ui = {
 
     // Drag state
     flowerPositions: {}, // { instanceId: { x, y } }
+    flowerZIndexes: {}, // { instanceId: zIndex }
     isDragging: false,
     wasDragging: false, // Track if drag actually happened
     draggedInstanceId: null,
@@ -28,6 +29,13 @@ const ui = {
     dragOffsetY: 0,
     dragStartX: 0,
     dragStartY: 0,
+
+    // Layer control elements
+    layerControls: document.getElementById('layer-controls'),
+    btnLayerUp: document.getElementById('btn-layer-up'),
+    btnLayerDown: document.getElementById('btn-layer-down'),
+    btnLayerTop: document.getElementById('btn-layer-top'),
+    btnLayerBottom: document.getElementById('btn-layer-bottom'),
 
     // Result Modal Selectors
     resultModal: document.getElementById('result-modal'),
@@ -149,6 +157,77 @@ const ui = {
         return { x: x - 40, y: y };
     },
 
+    getFlowerZIndex(instanceId) {
+        if (this.flowerZIndexes[instanceId] === undefined) {
+            // Assign initial z-index based on order in bouquet
+            const index = game.currentBouquet.indexOf(instanceId);
+            this.flowerZIndexes[instanceId] = index >= 0 ? index : 0;
+        }
+        return this.flowerZIndexes[instanceId];
+    },
+
+    changeLayerUp(instanceId) {
+        const currentZ = this.getFlowerZIndex(instanceId);
+        // Find flower with next higher z-index
+        let nextZ = null;
+        let nextId = null;
+        game.currentBouquet.forEach(id => {
+            const z = this.getFlowerZIndex(id);
+            if (z > currentZ && (nextZ === null || z < nextZ)) {
+                nextZ = z;
+                nextId = id;
+            }
+        });
+        if (nextId !== null) {
+            // Swap z-indexes
+            this.flowerZIndexes[instanceId] = nextZ;
+            this.flowerZIndexes[nextId] = currentZ;
+            this.renderBouquetZone();
+        }
+    },
+
+    changeLayerDown(instanceId) {
+        const currentZ = this.getFlowerZIndex(instanceId);
+        // Find flower with next lower z-index
+        let prevZ = null;
+        let prevId = null;
+        game.currentBouquet.forEach(id => {
+            const z = this.getFlowerZIndex(id);
+            if (z < currentZ && (prevZ === null || z > prevZ)) {
+                prevZ = z;
+                prevId = id;
+            }
+        });
+        if (prevId !== null) {
+            // Swap z-indexes
+            this.flowerZIndexes[instanceId] = prevZ;
+            this.flowerZIndexes[prevId] = currentZ;
+            this.renderBouquetZone();
+        }
+    },
+
+    moveToTop(instanceId) {
+        // Find max z-index
+        let maxZ = 0;
+        game.currentBouquet.forEach(id => {
+            const z = this.getFlowerZIndex(id);
+            if (z > maxZ) maxZ = z;
+        });
+        this.flowerZIndexes[instanceId] = maxZ + 1;
+        this.renderBouquetZone();
+    },
+
+    moveToBottom(instanceId) {
+        // Find min z-index
+        let minZ = Infinity;
+        game.currentBouquet.forEach(id => {
+            const z = this.getFlowerZIndex(id);
+            if (z < minZ) minZ = z;
+        });
+        this.flowerZIndexes[instanceId] = minZ - 1;
+        this.renderBouquetZone();
+    },
+
     setupListeners() {
         window.addEventListener('new-customer', (e) => this.renderCustomer(e.detail));
         window.addEventListener('bouquet-updated', () => {
@@ -181,6 +260,20 @@ const ui = {
 
         this.btnFinishSpoilage.addEventListener('click', () => game.finishSpoilage());
         this.btnFinishShopping.addEventListener('click', () => game.finishShopping());
+
+        // Layer control buttons
+        this.btnLayerUp.addEventListener('click', () => {
+            if (this.selectedInstanceId) this.changeLayerUp(this.selectedInstanceId);
+        });
+        this.btnLayerDown.addEventListener('click', () => {
+            if (this.selectedInstanceId) this.changeLayerDown(this.selectedInstanceId);
+        });
+        this.btnLayerTop.addEventListener('click', () => {
+            if (this.selectedInstanceId) this.moveToTop(this.selectedInstanceId);
+        });
+        this.btnLayerBottom.addEventListener('click', () => {
+            if (this.selectedInstanceId) this.moveToBottom(this.selectedInstanceId);
+        });
 
         this.btnCloseResult.addEventListener('click', () => {
             this.resultModal.classList.add('hidden');
@@ -292,23 +385,32 @@ const ui = {
         if (game.currentBouquet.length === 0) {
             this.bouquetZone.innerHTML = '<p class="placeholder">Нажмите на цветы из запасов слева, чтобы добавить их в букет</p>';
             this.btnRemove.classList.add('hidden');
-            // Clear positions for removed flowers
+            this.layerControls.classList.add('hidden');
+            // Clear positions and z-indexes for removed flowers
             this.flowerPositions = {};
+            this.flowerZIndexes = {};
             return;
         }
 
-        // Toggle Remove button visibility
+        // Toggle Remove button and layer controls visibility
         if (this.selectedInstanceId) {
             this.btnRemove.classList.remove('hidden');
+            this.layerControls.classList.remove('hidden');
         } else {
             this.btnRemove.classList.add('hidden');
+            this.layerControls.classList.add('hidden');
         }
 
-        // Clean up positions for flowers no longer in bouquet
+        // Clean up positions and z-indexes for flowers no longer in bouquet
         const currentIds = new Set(game.currentBouquet);
         Object.keys(this.flowerPositions).forEach(id => {
             if (!currentIds.has(parseInt(id))) {
                 delete this.flowerPositions[id];
+            }
+        });
+        Object.keys(this.flowerZIndexes).forEach(id => {
+            if (!currentIds.has(parseInt(id))) {
+                delete this.flowerZIndexes[id];
             }
         });
 
@@ -341,6 +443,10 @@ const ui = {
                 img.style.left = pos.x + 'px';
                 img.style.top = pos.y + 'px';
             }
+
+            // Apply z-index for layering
+            const zIndex = this.getFlowerZIndex(instanceId);
+            img.style.zIndex = zIndex;
 
             // Mouse down starts drag
             img.addEventListener('mousedown', (e) => {
