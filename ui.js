@@ -78,6 +78,19 @@ const ui = {
         this.draggedInstanceId = instanceId;
         this.draggedElement = imgElement;
 
+        // Select the flower being dragged
+        if (this.selectedInstanceId !== instanceId) {
+            this.selectedInstanceId = instanceId;
+            // Update UI to show selection
+            this.bouquetZone.querySelectorAll('.bouquet-item-img').forEach(img => {
+                img.classList.remove('selected');
+            });
+            imgElement.classList.add('selected');
+            // Show layer controls
+            this.btnRemove.classList.remove('hidden');
+            this.layerControls.classList.remove('hidden');
+        }
+
         const imgRect = imgElement.getBoundingClientRect();
 
         // Calculate offset from cursor to element's top-left corner
