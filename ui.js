@@ -424,7 +424,7 @@ const ui = {
         ctx.closePath(); // This will draw a line back to the bottomPoint
 
         // Fill with semi-transparent color
-        ctx.fillStyle = color + 'AA'; // Add alpha
+        ctx.fillStyle = color; // Add alpha
         ctx.fill();
 
         // Draw border
