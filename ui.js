@@ -347,61 +347,81 @@ const ui = {
         // Sort points by x coordinate for proper line drawing
         visiblePoints.sort((a, b) => a.x - b.x);
 
-        // Find the bottom point of the bouquet (lowest point of all flowers)
+        // Find the bottom-left and bottom-right points of the bouquet
         const flowerImgs = this.bouquetZone.querySelectorAll('.bouquet-item-img');
-        let maxBottom = 0;
-        let bottomCenterX = canvas.width / 2;
+        let leftmostImg = null;
+        let rightmostImg = null;
+        let minX = Infinity;
+        let maxX = -Infinity;
 
         flowerImgs.forEach(img => {
-            const height = img.offsetHeight;
-            const top = parseFloat(img.style.top) || 0;
             const left = parseFloat(img.style.left) || 0;
-            const width = img.offsetWidth;
-            const bottom = top + height;
+            const right = left + img.offsetWidth;
 
-            if (bottom > maxBottom) {
-                maxBottom = bottom;
-                bottomCenterX = left + width / 2;
+            if (left < minX) {
+                minX = left;
+                leftmostImg = img;
+            }
+            if (right > maxX) {
+                maxX = right;
+                rightmostImg = img;
             }
         });
 
-        // Calculate average bottom center x
-        let sumX = 0;
-        flowerImgs.forEach(img => {
-            const left = parseFloat(img.style.left) || 0;
-            const width = img.offsetWidth;
-            sumX += left + width / 2;
-        });
-        bottomCenterX = sumX / flowerImgs.length;
+        const bottomLeftPoint = {
+            x: parseFloat(leftmostImg.style.left) || 0,
+            y: (parseFloat(leftmostImg.style.top) || 0) + leftmostImg.offsetHeight
+        };
 
-        const bottomPoint = { x: bottomCenterX, y: maxBottom };
+        const bottomRightPoint = {
+            x: (parseFloat(rightmostImg.style.left) || 0) + rightmostImg.offsetWidth,
+            y: (parseFloat(rightmostImg.style.top) || 0) + rightmostImg.offsetHeight
+        };
 
-        // Get leftmost and rightmost visible points
-        const leftmostVisiblePoint = visiblePoints[0];
-        const rightmostVisiblePoint = visiblePoints[visiblePoints.length - 1];
+        // --- New geometric calculation for the bottom point with edge case handling ---
+        let bottomPoint;
+        const yDifference = Math.abs(bottomLeftPoint.y - bottomRightPoint.y);
 
-        const extremeLeftPoint = { x: leftmostVisiblePoint.left, y: leftmostVisiblePoint.top };
-        const extremeRightPoint = { x: rightmostVisiblePoint.right, y: rightmostVisiblePoint.top };
+        if (yDifference < 10) { // Edge case: flowers are horizontally aligned or it's a single flower
+            const centerX = (bottomLeftPoint.x + bottomRightPoint.x) / 2;
+            const lowestY = Math.max(bottomLeftPoint.y, bottomRightPoint.y);
+            bottomPoint = { x: centerX, y: lowestY + 50 }; // Add a fixed offset for a V-shape
+        } else {
+            // Original geometric calculation
+            let lowerPoint, higherPoint;
+            if (bottomLeftPoint.y >= bottomRightPoint.y) {
+                lowerPoint = bottomLeftPoint;
+                higherPoint = bottomRightPoint;
+            } else {
+                lowerPoint = bottomRightPoint;
+                higherPoint = bottomLeftPoint;
+            }
+            const mirroredY = lowerPoint.y + (lowerPoint.y - higherPoint.y);
+            bottomPoint = { x: higherPoint.x, y: mirroredY };
+        }
 
-        // Draw the wrap
+        // Get extreme points from the leftmost and rightmost *images*
+        const extremeLeftPoint = {
+            x: parseFloat(leftmostImg.style.left) || 0,
+            y: parseFloat(leftmostImg.style.top) || 0
+        };
+        const extremeRightPoint = {
+            x: (parseFloat(rightmostImg.style.left) || 0) + rightmostImg.offsetWidth,
+            y: parseFloat(rightmostImg.style.top) || 0
+        };
+
+        // Draw the wrap in a logical V-shape
         ctx.beginPath();
-
-        // Start from the new extreme left point
-        ctx.moveTo(extremeLeftPoint.x, extremeLeftPoint.y);
+        ctx.moveTo(bottomPoint.x, bottomPoint.y);
+        ctx.lineTo(extremeLeftPoint.x, extremeLeftPoint.y);
 
         // Draw line along the top connecting all visible bud points
         visiblePoints.forEach(point => {
             ctx.lineTo(point.x, point.y);
         });
 
-        // Continue to the new extreme right point
         ctx.lineTo(extremeRightPoint.x, extremeRightPoint.y);
-
-        // Draw line to the bottom point of the bouquet
-        ctx.lineTo(bottomPoint.x, bottomPoint.y);
-
-        // Close path back to the start
-        ctx.closePath();
+        ctx.closePath(); // This will draw a line back to the bottomPoint
 
         // Fill with semi-transparent color
         ctx.fillStyle = color + 'AA'; // Add alpha
