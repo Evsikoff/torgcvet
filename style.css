@@ -374,6 +374,11 @@ main {
     transform: scale(1.05);
 }
 
+.bouquet-item-img.dragging {
+    cursor: grabbing !important;
+    z-index: 100;
+}
+
 .bouquet-item-img.selected {
     filter: drop-shadow(0 0 10px gold) !important;
     transform: scale(1.1);
