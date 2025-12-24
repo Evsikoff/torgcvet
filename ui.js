@@ -23,6 +23,7 @@ const ui = {
     flowerZIndexes: {}, // { instanceId: zIndex }
     isDragging: false,
     wasDragging: false, // Track if drag actually happened
+    wasSelectedBeforeDrag: false, // Track if flower was selected before drag started
     draggedInstanceId: null,
     draggedElement: null,
     dragOffsetX: 0,
@@ -75,6 +76,7 @@ const ui = {
         e.preventDefault();
         this.isDragging = true;
         this.wasDragging = false;
+        this.wasSelectedBeforeDrag = (this.selectedInstanceId === instanceId);
         this.draggedInstanceId = instanceId;
         this.draggedElement = imgElement;
 
@@ -473,14 +475,14 @@ const ui = {
             // Click for selection (only if not dragging)
             img.addEventListener('click', (e) => {
                 e.stopPropagation();
-                // Only toggle selection if we didn't drag
+                // Only deselect if we didn't drag AND flower was already selected before
                 if (!this.wasDragging) {
-                    if (this.selectedInstanceId === instanceId) {
+                    if (this.wasSelectedBeforeDrag) {
+                        // Click on already selected flower - deselect
                         this.selectedInstanceId = null;
-                    } else {
-                        this.selectedInstanceId = instanceId;
+                        this.renderBouquetZone();
                     }
-                    this.renderBouquetZone();
+                    // If flower was not selected before, it's now selected (done in handleDragStart)
                 }
                 this.wasDragging = false;
             });
