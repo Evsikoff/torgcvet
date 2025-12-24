@@ -251,7 +251,7 @@ const ui = {
         });
 
         this.btnRemove.addEventListener('click', () => {
-            if (this.selectedInstanceId) {
+            if (this.selectedInstanceId !== null) {
                 game.removeFromBouquet(this.selectedInstanceId);
                 this.selectedInstanceId = null;
                 // renderBouquetZone is called by event listener
@@ -263,16 +263,16 @@ const ui = {
 
         // Layer control buttons
         this.btnLayerUp.addEventListener('click', () => {
-            if (this.selectedInstanceId) this.changeLayerUp(this.selectedInstanceId);
+            if (this.selectedInstanceId !== null) this.changeLayerUp(this.selectedInstanceId);
         });
         this.btnLayerDown.addEventListener('click', () => {
-            if (this.selectedInstanceId) this.changeLayerDown(this.selectedInstanceId);
+            if (this.selectedInstanceId !== null) this.changeLayerDown(this.selectedInstanceId);
         });
         this.btnLayerTop.addEventListener('click', () => {
-            if (this.selectedInstanceId) this.moveToTop(this.selectedInstanceId);
+            if (this.selectedInstanceId !== null) this.moveToTop(this.selectedInstanceId);
         });
         this.btnLayerBottom.addEventListener('click', () => {
-            if (this.selectedInstanceId) this.moveToBottom(this.selectedInstanceId);
+            if (this.selectedInstanceId !== null) this.moveToBottom(this.selectedInstanceId);
         });
 
         this.btnCloseResult.addEventListener('click', () => {
@@ -393,7 +393,7 @@ const ui = {
         }
 
         // Toggle Remove button and layer controls visibility
-        if (this.selectedInstanceId) {
+        if (this.selectedInstanceId !== null) {
             this.btnRemove.classList.remove('hidden');
             this.layerControls.classList.remove('hidden');
         } else {
